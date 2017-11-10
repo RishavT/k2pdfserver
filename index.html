@@ -1,0 +1,81 @@
+<html>
+<body id="body">
+<div id="drop_zone">Drop files here</div>
+<output id="list"></output>
+
+<button id="convert-button" onclick="convertFiles()">Convert Files</button>
+
+<script>
+  var allFiles = [];
+
+  // Check for the various File API support.
+  if (window.File && window.FileReader && window.FileList && window.Blob) {
+    // Great success! All the File APIs are supported.
+  } else {
+    alert('The File APIs are not fully supported in this browser.');
+  }
+
+  function handleFileSelect(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    var files = evt.dataTransfer.files; // FileList object.
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+      // output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+      //             f.size, ' bytes, last modified: ',
+      //             f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+      //             '</li>');
+      output.push('<li id="li-' + i + '"><strong>', f.name, '</strong></li>');
+      f.id = "li-" + i;
+      allFiles.push(f);
+    }
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+  }
+
+  function handleDragOver(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+  }
+
+  // Setup the dnd listeners.
+  var dropZone = document.getElementById('drop_zone');
+  var body = document.getElementById('body');
+  body.addEventListener('dragover', handleDragOver, false);
+  body.addEventListener('drop', handleFileSelect, false);
+
+  function convertFiles() {
+    var parsedFiles = allFiles.map(function(x) {
+      return {
+        path: x.path,
+        name: x.name,
+        id: x.id
+      }
+    });
+
+    var xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
+    xmlhttp.open("POST", "http://localhost:8000/convert", true);
+
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState == 4) {
+        responseData = JSON.parse(this.responseText)
+        for (var i = 0, f; f = responseData.files[i]; i ++) {
+          var innerHTML = '<strong>' +  f.name + '</strong>: <a href=' + f.newPath + '>Done! Click here to download.</a>';
+          document.getElementById(f.id).innerHTML = innerHTML;
+
+        }
+      }
+    }
+
+    xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xmlhttp.send(JSON.stringify({
+      files: parsedFiles
+    }));
+
+  }
+</script>
+</body>
+</html>

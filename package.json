@@ -1,0 +1,8 @@
+{
+  "main": "main.js",
+  "dependencies": {
+    "diet": "^0.16.0",
+    "electron": "^1.7.9",
+    "shelljs": "^0.7.8"
+  }
+}
