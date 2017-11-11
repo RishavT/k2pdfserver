@@ -1,7 +1,14 @@
 {
+  "name": "Rayk",
+  "description": "A Simple OS X Application to make your PDFs Kindle friendly",
+  "author": "Rishav Thakker (thakker.rishav@gmail.com)",
   "main": "main.js",
+  "version": "0.1.0",
+  "license": "gplv2",
   "dependencies": {
-    "diet": "^0.16.0",
+    "diet": "^0.16.0"
+  },
+  "devDependencies": {
     "electron": "^1.7.9"
   }
 }
