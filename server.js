@@ -4,7 +4,7 @@ const exec = require('child_process').exec
 
 app = server()
 
-k2pdfoptPath = 'k2pdfopt'
+k2pdfoptPath = '/Users/rishav/bin/k2pdfopt'
 
 newFiles = []
 
@@ -22,6 +22,7 @@ app.post('/convert', function($) {
     spawnedProcess = exec(command)
     f.convertData = {
       bufferedOutput: '',
+      bufferedError: '',
       status: null
     }
 
@@ -29,6 +30,13 @@ app.post('/convert', function($) {
       return function(data) {
         console.log('stdout: ' + tempObj.name + data)
         tempObj.convertData.bufferedOutput += '' + data;
+      }
+    }(f))
+
+    spawnedProcess.stderr.on('data', function(tempObj) {
+      return function(error) {
+        console.log('stderr: ' + tempObj.name + data)
+        tempObj.convertData.bufferedError += '' + data;
       }
     }(f))
 
