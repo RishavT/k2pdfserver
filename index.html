@@ -5,8 +5,12 @@
 
 <button id="convert-button" onclick="convertFiles()">Convert Files</button>
 
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+<script type="text/javascript" src="assets/js/jquery.min.js"></script>
+<script>if (window.module) module = window.module;</script>
+
 <script>
-  var allFiles = [];
+  allFiles = [];
 
   // Check for the various File API support.
   if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -19,10 +23,10 @@
     evt.stopPropagation();
     evt.preventDefault();
 
-    var files = evt.dataTransfer.files; // FileList object.
+    files = evt.dataTransfer.files; // FileList object.
 
     // files is a FileList of File objects. List some properties.
-    var output = [];
+    output = [];
     for (var i = 0, f; f = files[i]; i++) {
       // output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
       //             f.size, ' bytes, last modified: ',
@@ -42,13 +46,52 @@
   }
 
   // Setup the dnd listeners.
-  var dropZone = document.getElementById('drop_zone');
-  var body = document.getElementById('body');
+  dropZone = document.getElementById('drop_zone');
+  body = document.getElementById('body');
   body.addEventListener('dragover', handleDragOver, false);
   body.addEventListener('drop', handleFileSelect, false);
 
+  function getConversionStatus() {
+    window.$.get('http://localhost:8000/get_status').done(function(data){
+      newFiles = JSON.parse(data)
+      for (var i = 0, f; f = newFiles[i]; i ++) {
+        innerHTML = '<strong>' +  f.name + '</strong>: '
+        if (f.convertData.status === 'done') {
+          extraHTML = '<a href=' + f.newPath + '>Done! Click here to download.</a>'
+          document.getElementById(f.id).innerHTML = innerHTML + extraHTML
+          return;
+        }
+        else if (f.convertData.status === 'failed') {
+          extraHTML = 'Failed'
+        }
+        else {
+          lines = f.convertData.bufferedOutput.split('\n')
+          last_line = lines[lines.length-1]
+          last_line = last_line.split(' of ')
+          if (last_line.length === 1) {
+            extraHTML = ''
+          }
+          else {
+            result = [last_line[last_line.length-2], last_line[last_line.length-1]]
+            result[0] = result[0].trim().split(' ')
+            result[0] = result[0][result[0].length-1]
+            result[1] = result[1].trim().split(' ')
+            result[1] = result[1][0]
+            percentage = Math.round(result[0] / result[1] * 100)
+            extraHTML = 'Converting.. ' + percentage + '%'
+          }
+        }
+        document.getElementById(f.id).innerHTML = innerHTML + extraHTML
+      }
+      setTimeout(getConversionStatus, 300)
+    }).fail(function(error) {
+      console.log('Failed to get conversion status ' + error)
+      setTimeout(getConversionStatus, 300)
+    })
+  }
+
   function convertFiles() {
-    var parsedFiles = allFiles.map(function(x) {
+    parsedFiles = allFiles.map(function(x) {
       return {
         path: x.path,
         name: x.name,
@@ -56,16 +99,23 @@
       }
     });
 
-    var xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
+    xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
     xmlhttp.open("POST", "http://localhost:8000/convert", true);
 
     xmlhttp.onreadystatechange = function() {
       if (this.readyState == 4) {
-        responseData = JSON.parse(this.responseText)
-        for (var i = 0, f; f = responseData.files[i]; i ++) {
-          var innerHTML = '<strong>' +  f.name + '</strong>: <a href=' + f.newPath + '>Done! Click here to download.</a>';
-          document.getElementById(f.id).innerHTML = innerHTML;
-
+        responseData = this.responseText
+        // for (var i = 0, f; f = responseData.files[i]; i ++) {
+        //   innerHTML = '<strong>' +  f.name + '</strong>: <a href=' + f.newPath + '>Done! Click here to download.</a>';
+        //   document.getElementById(f.id).innerHTML = innerHTML;
+        //
+        // }
+        if (responseData === 'Success') {
+          console.log('wew')
+          setTimeout(getConversionStatus, 300)
+        }
+        else {
+          alert('Conversion failed. Please restart the application and try again.')
         }
       }
     }

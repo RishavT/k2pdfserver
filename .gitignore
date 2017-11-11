@@ -57,3 +57,11 @@ typings/
 # dotenv environment variables file
 .env
 
+# Asar files
+**/*.asar
+
+# Electron prebuilt binaries
+
+**/electron*
+package-lock.json
+yarn.lock
