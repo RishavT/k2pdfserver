@@ -9,7 +9,7 @@ const url = require('url')
 const {
   fork
 } = require('child_process')
-const forked = fork('server.js')
+const forked = fork(path.join(__dirname, 'server.js'))
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
