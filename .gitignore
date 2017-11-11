@@ -65,3 +65,6 @@ typings/
 **/electron*
 package-lock.json
 yarn.lock
+
+# Electron Packaged Directories
+./rayk-*

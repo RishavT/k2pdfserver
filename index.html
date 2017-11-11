@@ -28,10 +28,6 @@
     // files is a FileList of File objects. List some properties.
     output = [];
     for (var i = 0, f; f = files[i]; i++) {
-      // output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-      //             f.size, ' bytes, last modified: ',
-      //             f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-      //             '</li>');
       output.push('<li id="li-' + i + '"><strong>', f.name, '</strong></li>');
       f.id = "li-" + i;
       allFiles.push(f);
@@ -54,12 +50,14 @@
   function getConversionStatus() {
     window.$.get('http://localhost:8000/get_status').done(function(data){
       newFiles = JSON.parse(data)
+      allFinished = true
       for (var i = 0, f; f = newFiles[i]; i ++) {
         innerHTML = '<strong>' +  f.name + '</strong>: '
+        allFinished = false
         if (f.convertData.status === 'done') {
           extraHTML = '<a href=' + f.newPath + '>Done! Click here to download.</a>'
           document.getElementById(f.id).innerHTML = innerHTML + extraHTML
-          return;
+          continue;
         }
         else if (f.convertData.status === 'failed') {
           extraHTML = 'Failed'
@@ -81,9 +79,13 @@
             extraHTML = 'Converting.. ' + percentage + '%'
           }
         }
-        document.getElementById(f.id).innerHTML = innerHTML + extraHTML
+        if (extraHTML) {
+          document.getElementById(f.id).innerHTML = innerHTML + extraHTML
+        }
       }
-      setTimeout(getConversionStatus, 300)
+      if (!allFinished) {
+        setTimeout(getConversionStatus, 300)
+      }
     }).fail(function(error) {
       console.log('Failed to get conversion status ' + error)
       setTimeout(getConversionStatus, 300)
