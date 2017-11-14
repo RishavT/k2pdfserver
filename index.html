@@ -4,30 +4,44 @@
   <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
   <script type="text/javascript" src="assets/js/jquery.min.js"></script>
   <script>if (window.module) module = window.module;</script>
+  <link rel="stylesheet" type="text/css" href="assets/css/photon.min.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/main.css">
 </head>
 
 <body>
-  <div id="top-content">
-    <h1>Rayk</h1>
-    <p>Read Anything on Your Kindle</p>
-    <p>Rayk takes all your big bad PDF files and turns them into cute Kindle friendly PDFs.</p>
-  </div>
-  <div class="main-content" id="main-content">
-    <div class="file-div-empty">
-      <div class="vertically-centered horizontally-centered">
-        Drag a file here
+  <header class="toolbar toolbar-header">
+    <h1 class="title">Rayk</h1>
+  </header>
+  <div class="window">
+    <div class="window-content">
+      <div class="table-container">
+        <div class="table-row">
+          <div class="top-content table-cell" id="top-content">
+            <h1>Rayk</h1>
+            <p>Read Anything on Your Kindle</p>
+            <p>Rayk takes all your big bad PDF files and turns them into cute Kindle friendly PDFs.</p>
+          </div>
+        </div>
+        <div class="table-row">
+          <div class="main-content table-cell" id="main-content">
+            <div class="file-div-empty">
+                Drag a file here
+            </div>
+            <div class="file-div-occupied">
+              <ul id="list" class="list-group"></ul>
+              <div class="text">Go on, drag another file if you want!</div>
+              <button class="convert-button" onclick="convertFiles()">Convert</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="file-div-occupied">
-      <ul id="list"></ul>
-      <button id="convert-button" onclick="convertFiles()">Convert</button>
+
+      <div id="error-div"></div>
+
+      <script src="assets/js/file_list.js" charset="utf-8"></script>
+      <script src="assets/js/convert.js" charset="utf-8"></script>
     </div>
   </div>
-
-  <div id="error-div"></div>
-
-  <script src="assets/js/file_list.js" charset="utf-8"></script>
-  <script src="assets/js/convert.js" charset="utf-8"></script>
 </body>
 
 </html>

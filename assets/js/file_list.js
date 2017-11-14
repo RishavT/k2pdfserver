@@ -19,31 +19,56 @@ function handleFileSelect(evt) {
 
     fileLi = document.createElement('li')
     fileLi.id = f.id
-    fileLi.class = 'file-list-el'
+    fileLi.className = 'file-list-el list-group-item'
+
+    fileMediaBody = document.createElement('div')
+    fileMediaBody.className = 'media-body'
 
     fileNameSpan = document.createElement('span')
-    fileNameSpan.class = 'file-name'
+    fileNameSpan.className = 'file-name'
     fileNameSpan.id = f.id + '-name'
-    fileNameSpan.innerHTML = f.name
 
-    conversionStatusSpan = document.createElement('span')
-    conversionStatusSpan.class = 'file-conversion-status'
-    conversionStatusSpan.id = f.id + '-conversion-status'
+    if (f.name.length > 40) {
+
+       fileNameSpan.innerHTML = f.name.substring(0,40) + '...'
+    }
+    else {
+      fileNameSpan.innerHTML = f.name.substring(0,40)
+    }
+
+    fileNameSpan.title = f.name
+
+    progressBar = document.createElement('progress')
+    progressBar.className = 'progress-bar'
+    progressBar.id = f.id + '-progress-bar'
+    progressBar.value = 0
+    progressBar.max = 100
+
+    converstionStatusSpan = document.createElement('span')
+    converstionStatusSpan.className = 'conversion-status'
+    converstionStatusSpan.id = f.id + '-conversion-status'
+    converstionStatusSpan.appendChild(progressBar)
+
 
     deleteButton = document.createElement('button')
-    deleteButton.class = 'delete-button'
-    deleteButton.innerHTML = 'Remove'
+    deleteButton.className = 'delete-button icon icon-cancel'
+    // deleteButton.innerHTML = 'Remove'
     deleteButton.addEventListener('click', function () { removeFile(this) })
 
-    fileLi.appendChild(fileNameSpan)
-    fileLi.appendChild(conversionStatusSpan)
-    fileLi.appendChild(deleteButton)
+    fileMediaBody.appendChild(fileNameSpan)
+    fileMediaBody.appendChild(converstionStatusSpan)
+    fileMediaBody.appendChild(deleteButton)
+
+    fileLi.appendChild(fileMediaBody)
 
     fragment.appendChild(fileLi)
     allFiles.push(f)
 
   }
   document.getElementById('list').appendChild(fragment)
+  // Hide file list empty element
+  $(".file-div-empty").hide()
+  $(".file-div-occupied").show()
 }
 // TODO(rhakker) I was beautifying the lists. Next target, add CSS and icons
 // and make a nice looking list. We can do the rest later.
@@ -55,7 +80,7 @@ function handleDragOver(evt) {
 }
 
 function removeFile(obj) {
-  listElement = obj.parentNode
+  listElement = obj.parentNode.parentNode
   idx = listElement.getAttribute('data-idx')
   allFiles.splice(idx, 1)
   listElement.remove()

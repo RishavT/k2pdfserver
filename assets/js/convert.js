@@ -1,36 +1,40 @@
-function setConversionStatus(f, percentage) {
-  conversionId = f.id + '-conversion-status'
+function setProgress(f, percentage) {
+  progressBarId = f.id + '-progress-bar'
+  conversionStatusId = f.id + '-conversion-status'
   if (percentage === 100) {
-    converstionStatus = '<a href=' + f.newPath + '>Done! Click here to download.</a>'
+    conversionStatus = '<a href=' + f.newPath + '>Done! Click here to download.</a>'
+    document.getElementById(conversionStatusId).innerHTML = conversionStatus
   }
   else if (percentage === -1){
     // Failed
-    converstionStatus = 'Failed to convert.'
-
+    conversionStatus = 'Failed to convert.'
+    document.getElementById(conversionStatusId).innerHTML = conversionStatus
   }
   else {
-    converstionStatus = 'Converting.. ' + percentage + '%'
+    progressBar = document.getElementById(progressBarId)
+    progressBar.style.display = 'inline'
+    progressBar.value = percentage
   }
-  document.getElementById(conversionId).innerHTML = converstionStatus
 }
 
-function getConversionStatus() {
+function getProgress() {
   window.$.get('http://localhost:8000/get_status').done(function(data){
     newFiles = JSON.parse(data)
     allFinished = true
     for (var i = 0, f; f = newFiles[i]; i ++) {
-      converstionStatus = null
-      converstionPercentage = null
-      allFinished = false
+      conversionStatus = null
+      conversionPercentage = null
+      allFinished = true
       if (f.convertData.status === 'done') {
-        setConversionStatus(f, 100)
+        setProgress(f, 100)
         continue;
       }
       else if (f.convertData.status === 'failed') {
-        setConversionStatus(f, -1)
+        setProgress(f, -1)
         console.log(f.convertData.bufferedError)
       }
       else {
+        allFinished = false
         lines = f.convertData.bufferedOutput.split('\n')
         last_line = lines[lines.length-1]
         last_line = last_line.split(' of ')
@@ -41,16 +45,16 @@ function getConversionStatus() {
           result[1] = result[1].trim().split(' ')
           result[1] = result[1][0]
           percentage = Math.round(result[0] / result[1] * 100)
-          setConversionStatus(f, percentage)
+          setProgress(f, percentage)
         }
       }
     }
     if (!allFinished) {
-      setTimeout(getConversionStatus, 300)
+      setTimeout(getProgress, 300)
     }
   }).fail(function(error) {
-    console.log('Failed to get conversion status ' + error)
-    setTimeout(getConversionStatus, 300)
+    console.log('Failed to get progress ' + error)
+    setTimeout(getProgress, 300)
   })
 }
 
@@ -76,7 +80,7 @@ function convertFiles() {
       // }
       if (responseData === 'Success') {
         console.log('wew')
-        setTimeout(getConversionStatus, 300)
+        setTimeout(getProgress, 300)
       }
       else {
         alert('Conversion failed. Please restart the application and try again.')
