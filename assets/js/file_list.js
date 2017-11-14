@@ -15,18 +15,20 @@ function handleFileSelect(evt) {
 
   // files is a FileList of File objects. List some properties.
   for (var i = 0, f; f = files[i]; i++) {
+    f.id = 'li-' + i
+
     fileLi = document.createElement('li')
-    fileLi.id = 'li-' + i
+    fileLi.id = f.id
     fileLi.class = 'file-list-el'
 
     fileNameSpan = document.createElement('span')
     fileNameSpan.class = 'file-name'
-    fileNameSpan.id = 'li-' + i + '-name'
+    fileNameSpan.id = f.id + '-name'
     fileNameSpan.innerHTML = f.name
 
     conversionStatusSpan = document.createElement('span')
     conversionStatusSpan.class = 'file-conversion-status'
-    conversionStatusSpan.id = 'li-' + i + '-conversion-status'
+    conversionStatusSpan.id = f.id + '-conversion-status'
 
     deleteButton = document.createElement('button')
     deleteButton.class = 'delete-button'
@@ -38,6 +40,7 @@ function handleFileSelect(evt) {
     fileLi.appendChild(deleteButton)
 
     fragment.appendChild(fileLi)
+    allFiles.push(f)
 
   }
   document.getElementById('list').appendChild(fragment)

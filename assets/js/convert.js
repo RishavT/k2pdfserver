@@ -1,18 +1,34 @@
+function setConversionStatus(f, percentage) {
+  conversionId = f.id + '-conversion-status'
+  if (percentage === 100) {
+    converstionStatus = '<a href=' + f.newPath + '>Done! Click here to download.</a>'
+  }
+  else if (percentage === -1){
+    // Failed
+    converstionStatus = 'Failed to convert.'
+
+  }
+  else {
+    converstionStatus = 'Converting.. ' + percentage + '%'
+  }
+  document.getElementById(conversionId).innerHTML = converstionStatus
+}
+
 function getConversionStatus() {
   window.$.get('http://localhost:8000/get_status').done(function(data){
     newFiles = JSON.parse(data)
     allFinished = true
     for (var i = 0, f; f = newFiles[i]; i ++) {
       converstionStatus = null
+      converstionPercentage = null
       allFinished = false
       if (f.convertData.status === 'done') {
-        converstionStatus = '<a href=' + f.newPath + '>Done! Click here to download.</a>'
-        document.getElementById(f.id).innerHTML = innerHTML + extraHTML
+        setConversionStatus(f, 100)
         continue;
       }
       else if (f.convertData.status === 'failed') {
-        converstionStatus = 'Failed'
-        $("#error-div")[0].innerHTML += f.convertData.bufferedError;
+        setConversionStatus(f, -1)
+        console.log(f.convertData.bufferedError)
       }
       else {
         lines = f.convertData.bufferedOutput.split('\n')
@@ -25,12 +41,8 @@ function getConversionStatus() {
           result[1] = result[1].trim().split(' ')
           result[1] = result[1][0]
           percentage = Math.round(result[0] / result[1] * 100)
-          converstionStatus = 'Converting.. ' + percentage + '%'
+          setConversionStatus(f, percentage)
         }
-      }
-      if (converstionStatus) {
-        conversionId = f.id + '-converstion-status'
-        document.getElementById(conversionId).innerHTML = converstionStatus
       }
     }
     if (!allFinished) {
@@ -38,7 +50,6 @@ function getConversionStatus() {
     }
   }).fail(function(error) {
     console.log('Failed to get conversion status ' + error)
-    $("#error-div")[0].innerHTML += 'Failed to get conversion status ' + error
     setTimeout(getConversionStatus, 300)
   })
 }
@@ -69,7 +80,7 @@ function convertFiles() {
       }
       else {
         alert('Conversion failed. Please restart the application and try again.')
-        $("#error-div")[0].innerHTML += 'Conversion failed. Please restart the application and try again'
+        console.log('Conversion failed. Please restart the application and try again')
       }
     }
   }
