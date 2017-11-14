@@ -7,6 +7,28 @@ app = server()
 k2pdfoptPath = '/usr/bin/k2pdfopt'
 
 newFiles = []
+spawnedProcesses = {}
+
+app.post('/cancel', function($) {
+  data = JSON.parse($.body)
+
+  fileToDelete = data.fileToDelete
+  console.log(data);
+  // for (i = 0, p = spawnedProcesses[i]; p; i ++) {
+  //   console.log(data)
+  //   p.kill()
+  // }
+  for (i in newFiles) {
+     f = newFiles[i]
+     if (f.path === fileToDelete.path) {
+       spawnedProcesses[f.path].kill()
+       break
+     }
+  }
+  newFiles.splice(i, 1)
+  $.end('Success')
+
+})
 
 app.post('/convert', function($) {
   data = JSON.parse($.body)
@@ -20,6 +42,8 @@ app.post('/convert', function($) {
     command = k2pdfoptPath + ' ' + f.path + ' -ui- -x -a- -o ' + newPath
     f.newPath = newPath
     spawnedProcess = exec(command)
+    spawnedProcesses[f.path] = spawnedProcess
+    console.log(spawnedProcess.pid)
     f.convertData = {
       bufferedOutput: '',
       bufferedError: '',
@@ -28,7 +52,7 @@ app.post('/convert', function($) {
 
     spawnedProcess.stdout.on('data', function(tempObj) {
       return function(data) {
-        console.log('stdout: ' + tempObj.name + data)
+        // console.log('stdout: ' + tempObj.name + data)
         tempObj.convertData.bufferedOutput += '' + data;
       }
     }(f))
