@@ -1,6 +1,9 @@
 <html>
 
 <head>
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+  <script type="text/javascript" src="assets/js/jquery.min.js"></script>
+  <script>if (window.module) module = window.module;</script>
 </head>
 
 <body>
@@ -16,12 +19,15 @@
       </div>
     </div>
     <div class="file-div-occupied">
-      <output id="list"></output>
+      <ul id="list"></ul>
       <button id="convert-button" onclick="convertFiles()">Convert</button>
     </div>
   </div>
 
+  <div id="error-div"></div>
+
   <script src="assets/js/file_list.js" charset="utf-8"></script>
+  <script src="assets/js/convert.js" charset="utf-8"></script>
 </body>
 
 </html>
