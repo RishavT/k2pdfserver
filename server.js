@@ -41,7 +41,7 @@ app.post('/convert', function($) {
     f = data.files[i]
     console.log('Converting ' + f.path)
     newPath = '/tmp/' + f.name + '_converted.pdf'
-    command = k2pdfoptPath + ' ' + f.path + ' -ui- -x -a- -o ' + newPath
+    command = k2pdfoptPath + ' "' + f.path + '" -ui- -x -a- -o "' + newPath + '"'
     f.newPath = newPath
     spawnedProcess = exec(command)
     spawnedProcesses[f.path] = spawnedProcess

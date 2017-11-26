@@ -2,7 +2,7 @@ function setProgress(f, percentage) {
   progressBarId = f.id + '-progress-bar'
   conversionStatusId = f.id + '-conversion-status'
   if (percentage === 100) {
-    conversionStatus = '<a href=' + f.newPath + '>Done! Click here to download.</a>'
+    conversionStatus = '<a href="' + f.newPath + '">Done! Click here to download.</a>'
     document.getElementById(conversionStatusId).innerHTML = conversionStatus
   }
   else if (percentage === -1){
