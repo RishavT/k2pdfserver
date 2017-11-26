@@ -6,6 +6,17 @@
   height: 100%;
   width: 100%;
 }
+
+.error-content, .initializing-content {
+  padding: 10%;
+  text-align: center;
+}
+
+.error-content input {
+  width: auto;
+  min-width: 300px;
+}
+
 .table-container {
   display: table;
   height: 100%;
@@ -34,7 +45,7 @@
 }
 
 .file-div-occupied {
-  max-width: 400px;
+  max-width: 600px;
   width: auto;
   margin: auto;
   display: none;

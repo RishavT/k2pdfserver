@@ -19,6 +19,7 @@ function handleFileSelect(evt) {
 
     fileLi = document.createElement('li')
     fileLi.id = f.id
+    fileLi.name = i
     fileLi.className = 'file-list-el list-group-item'
 
     fileMediaBody = document.createElement('div')
@@ -81,9 +82,30 @@ function handleDragOver(evt) {
 
 function removeFile(obj) {
   listElement = obj.parentNode.parentNode
-  idx = listElement.getAttribute('data-idx')
-  allFiles.splice(idx, 1)
-  listElement.remove()
+  idx = listElement.name
+  // $.post(
+  //     'http://localhost:8000/cancel',
+  //     {file: allFiles[idx]},
+  //     function(idx, listElement) {
+  //       return function(data, status) {
+  //         allFiles.splice(idx, 1)
+  //         listElement.remove()
+  //       }(idx, listElement)
+  //     }
+  //   )
+  xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
+  xmlhttp.open("POST", "http://localhost:8000/cancel", true);
+
+  xmlhttp.onreadystatechange = function(idx, listElement) {
+    return function(data, status) {
+      allFiles.splice(idx, 1)
+      listElement.remove()
+    }(idx, listElement)
+  }
+
+  xmlhttp.send(JSON.stringify({
+    fileToDelete: allFiles[idx]
+  }));
 }
 
 // Setup the dnd listeners.

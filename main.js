@@ -9,6 +9,7 @@ const url = require('url')
 const {
   fork
 } = require('child_process')
+const k2pdfopt = require(path.join(__dirname, 'k2pdfopt.js'))
 const forked = fork(path.join(__dirname, 'server.js'))
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -19,15 +20,32 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 600,
-    height: 600
+    height: 600,
   })
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.join(__dirname, 'initializing.html'),
     protocol: 'file:',
     slashes: true
   }))
+
+  k2pdfopt.downloadIfRequired(success => {
+    if (success) {
+      mainWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'index.html'),
+        protocol: 'file:',
+        slashes: true
+      }))
+    }
+    else {
+      mainWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'error.html'),
+        protocol: 'file:',
+        slashes: true
+      }))
+    }
+  })
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -51,9 +69,10 @@ app.on('ready', createWindow)
 app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  // if (process.platform !== 'darwin') {
+  //   app.quit()
+  // }
+  app.quit()
 })
 
 app.on('activate', function() {

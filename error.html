@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script type="text/javascript" src="assets/js/jquery.min.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <link rel="stylesheet" type="text/css" href="assets/css/photon/css/photon.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+    <title>Rayk: Error</title>
+  </head>
+  <body>
+    <header class="toolbar toolbar-header">
+      <h1 class="title">Rayk: Error</h1>
+    </header>
+
+    <div class="window">
+      <div class="error-content">
+        <h1>Rayk: Error</h1>
+        <p>Could not download k2pdfopt.</p>
+        <p>Please close and launch this app again, or try downloading manually:</p>
+        <h3>How to Download k2pdfopt Manually?</h3>
+        <ul>
+          <li>K2pdfopt is a file used by Rayk for converting PDFs. To download it, click
+            <a href='http://rishavt.github.io/rayk-k2pdfopt/k2pdfopt'>here</a>.
+          </li>
+          <li>Once you have downloaded the file, create a folder called ".rayk"
+            in your home folder and copy over the downloaded binary over there.
+          </li>
+          <li>Now you need to change the permissions of the file. Open up
+            a terminal and paste the following:<br/>
+            <input value="chmod 755 ~/.rayk/k2pdfopt"></input>
+          </li>
+          <li>If you don't see any errors, you're good to go. Close and launch
+            Rayk again and it should work.
+          </li>
+      </div>
+    </div>
+  </body>
+</html>
