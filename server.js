@@ -17,6 +17,7 @@ app.post('/cancel', function($) {
   //   console.log(data)
   //   p.kill()
   // }
+  i = null
   for (i in newFiles) {
      f = newFiles[i]
      if (f.path === fileToDelete.path) {
@@ -24,7 +25,9 @@ app.post('/cancel', function($) {
        break
      }
   }
-  newFiles.splice(i, 1)
+  if (i) {
+    newFiles.splice(i, 1)
+  }
   $.end('Success')
 
 })
