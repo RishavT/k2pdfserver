@@ -98,10 +98,12 @@ function removeFile(obj) {
 
   xmlhttp.onreadystatechange = function(idx, listElement) {
     return function(data, status) {
-      allFiles.splice(idx, 1)
-      listElement.remove()
-    }(idx, listElement)
-  }
+      if (xmlhttp.readyState == 4) {
+        allFiles.splice(idx, 1)
+        listElement.remove()
+      }
+    }
+  }(idx, listElement)
 
   xmlhttp.send(JSON.stringify({
     fileToDelete: allFiles[idx]
