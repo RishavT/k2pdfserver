@@ -45,11 +45,14 @@ function handleFileSelect(evt) {
     progressBar.value = 0
     progressBar.max = 100
 
-    converstionStatusSpan = document.createElement('span')
-    converstionStatusSpan.className = 'conversion-status'
-    converstionStatusSpan.id = f.id + '-conversion-status'
-    converstionStatusSpan.appendChild(progressBar)
+    conversionStatusSpan = document.createElement('span')
+    conversionStatusSpan.className = 'conversion-status'
+    conversionStatusSpan.id = f.id + '-conversion-status'
+    conversionStatusSpan.appendChild(progressBar)
 
+    sendStatusSpan = document.createElement('span')
+    sendStatusSpan.className = 'send-status'
+    sendStatusSpan.id = f.id + '-send-status'
 
     deleteButton = document.createElement('button')
     deleteButton.className = 'delete-button icon icon-cancel'
@@ -57,7 +60,8 @@ function handleFileSelect(evt) {
     deleteButton.addEventListener('click', function () { removeFile(this) })
 
     fileMediaBody.appendChild(fileNameSpan)
-    fileMediaBody.appendChild(converstionStatusSpan)
+    fileMediaBody.appendChild(conversionStatusSpan)
+    fileMediaBody.appendChild(sendStatusSpan)
     fileMediaBody.appendChild(deleteButton)
 
     fileLi.appendChild(fileMediaBody)

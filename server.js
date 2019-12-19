@@ -1,4 +1,5 @@
 // Create an app
+const fs = require("fs")
 const server = require('diet')
 const exec = require('child_process').exec
 const { k2pdfoptPath } = require('./k2pdfopt.js')
@@ -41,7 +42,7 @@ app.post('/convert', function($) {
   for (i in data.files) {
     f = data.files[i]
     console.log('Converting ' + f.path)
-    newPath = TempDir + f.name + '_converted' + Math.random() + '.pdf'
+    newPath = TempDir + f.name + '_converted.pdf'
     command = k2pdfoptPath + ' "' + f.path + '" -ui- -x -a- -o "' + newPath + '"'
     f.newPath = newPath
     spawnedProcess = exec(command)
@@ -52,6 +53,7 @@ app.post('/convert', function($) {
       bufferedError: '',
       status: null
     }
+  f.sentToKindle = false
 
     spawnedProcess.stdout.on('data', function(tempObj) {
       return function(data) {
@@ -85,6 +87,27 @@ app.post('/convert', function($) {
 app.get('/get_status', function($) {
   if (newFiles)
     $.end(JSON.stringify(newFiles))
+})
+
+app.get('/send_files', function($) {
+	// Copies files to Kindle
+  if (newFiles) {
+    for (i in newFiles) {
+      f = newFiles[i];
+      if (f.convertData.status === "done" && !f.sentToKindle) {
+		console.log(fs)
+		fs.copyFile(f.newPath, "/Volumes/Kindle/documents/" + f.name, (err) => {
+		  if (err) {
+		    console.log(err);
+		  }
+          else {
+		    f.sentToKindle = true
+		  }
+		});
+      }
+    }
+  }
+  $.end("Success")
 })
 
 // Set exit function

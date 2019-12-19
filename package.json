@@ -10,6 +10,6 @@
     "download": "^6.2.5"
   },
   "devDependencies": {
-    "electron": "^1.7.9"
+    "electron": "^7.1.6"
   }
 }

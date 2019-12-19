@@ -1,3 +1,5 @@
+var newFiles = []
+
 function setProgress(f, percentage) {
   progressBarId = f.id + '-progress-bar'
   conversionStatusId = f.id + '-conversion-status'
@@ -94,4 +96,28 @@ function convertFiles() {
     files: parsedFiles
   }));
 
+}
+
+function sendFiles() {
+  xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
+  xmlhttp.open("GET", "http://localhost:8000/send_files", true);
+
+  xmlhttp.onreadystatechange = function() {
+	getProgress()
+	for (i in newFiles) {
+      f = newFiles[i]
+      elementId = f.id + "-send-status"
+      if (f.sentToKindle) {
+        innerHTML = "Sent to Kindle!"
+      }
+      else {
+        innerHTML = "Failed to send to Kindle"
+      }
+      document.getElementById(elementId).innerHTML = innerHTML
+    }
+  }
+
+  xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  xmlhttp.send()
+  
 }
