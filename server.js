@@ -83,7 +83,8 @@ app.post('/convert', function($) {
 })
 
 app.get('/get_status', function($) {
-  $.end(JSON.stringify(newFiles))
+  if (newFiles)
+    $.end(JSON.stringify(newFiles))
 })
 
 // Set exit function
