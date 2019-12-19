@@ -11,10 +11,21 @@ const {
 } = require('child_process')
 const k2pdfopt = require(path.join(__dirname, 'k2pdfopt.js'))
 const forked = fork(path.join(__dirname, 'server.js'))
+const exec = require('child_process').exec
+const TempDir = '/tmp/rayk/'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
+
+function createTemp() {
+  // Creates the temp directory
+  exec("mkdir -p " + TempDir)
+}
+function deleteTemp() {
+  // Deletes the temp directory
+  exec("rm -rf " + TempDir)
+}
 
 function createWindow() {
   // Create the browser window.
@@ -29,6 +40,10 @@ function createWindow() {
     protocol: 'file:',
     slashes: true
   }))
+
+  // Refresh temp directory
+  deleteTemp()
+  createTemp()
 
   k2pdfopt.downloadIfRequired(success => {
     if (success) {
@@ -56,6 +71,7 @@ function createWindow() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
+    deleteTemp()
     forked.send('exit')
   })
 }

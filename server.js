@@ -2,6 +2,7 @@
 const server = require('diet')
 const exec = require('child_process').exec
 const { k2pdfoptPath } = require('./k2pdfopt.js')
+const TempDir = '/tmp/rayk/'
 
 app = server()
 
@@ -40,7 +41,7 @@ app.post('/convert', function($) {
   for (i in data.files) {
     f = data.files[i]
     console.log('Converting ' + f.path)
-    newPath = '/tmp/' + f.name + '_converted.pdf'
+    newPath = TempDir + f.name + '_converted' + Math.random() + '.pdf'
     command = k2pdfoptPath + ' "' + f.path + '" -ui- -x -a- -o "' + newPath + '"'
     f.newPath = newPath
     spawnedProcess = exec(command)
