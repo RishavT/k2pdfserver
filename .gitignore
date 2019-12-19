@@ -68,3 +68,5 @@ yarn.lock
 
 # Electron Packaged Directories
 ./rayk-*
+./dist
+./.DS_Store
