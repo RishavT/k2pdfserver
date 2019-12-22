@@ -1,3 +1,5 @@
+const remote = require("electron")
+
 var allFiles = [];
 output = [];
 if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -6,12 +8,29 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
   alert('Seems like this application is not supported on your computer, sorry.');
 }
 
-function handleFileSelect(evt) {
-  evt.stopPropagation();
-  evt.preventDefault();
+function handleFileSelect(evt, files) {
 
-  files = evt.dataTransfer.files; // FileList object.
+  if (evt !== undefined && evt !== null) {
+	  evt.stopPropagation();
+	  evt.preventDefault();
+
+	  files = evt.dataTransfer.files; // FileList object.
+  }
+  else if (files == undefined || files == null) {
+	  console.log("handleFileSelect requires either evt or files as argument")
+	  return
+  }
   fragment = document.createDocumentFragment()
+
+  if (allFiles.length > 0) {
+	  alert("Please wait for the current file to finish")
+	  return
+  }
+  
+  if (files.length > 1) {
+	  alert("Please select a single file")
+	  return
+  }
 
   // files is a FileList of File objects. List some properties.
   for (var i = 0, f; f = files[i]; i++) {
@@ -74,6 +93,9 @@ function handleFileSelect(evt) {
   // Hide file list empty element
   $(".file-div-empty").hide()
   $(".file-div-occupied").show()
+  
+  // Automatically start conversion
+  setTimeout(convertFiles, 300)
 }
 // TODO(rhakker) I was beautifying the lists. Next target, add CSS and icons
 // and make a nice looking list. We can do the rest later.

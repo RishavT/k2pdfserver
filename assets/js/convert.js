@@ -1,6 +1,11 @@
-var newFiles = []
+const electron = require("electron")
 
-function setProgress(f, percentage) {
+function alertAndQuit(message) {
+	alert(message)
+	electron.remote.getCurrentWindow().close()
+}
+
+function saveProgress(f, percentage) {
   progressBarId = f.id + '-progress-bar'
   conversionStatusId = f.id + '-conversion-status'
   if (percentage === 100) {
@@ -19,20 +24,21 @@ function setProgress(f, percentage) {
   }
 }
 
-function getProgress() {
+function getProgress(callback) {
+  // Gets the progress of conversion from backend
   window.$.get('http://localhost:8000/get_status').done(function(data){
     newFiles = JSON.parse(data)
     allFinished = true
     for (var i = 0, f; f = newFiles[i]; i ++) {
       conversionStatus = null
       conversionPercentage = null
-      allFinished = true
       if (f.convertData.status === 'done') {
-        setProgress(f, 100)
+        saveProgress(f, 100)
+	    sendFiles()
         continue;
       }
       else if (f.convertData.status === 'failed') {
-        setProgress(f, -1)
+        saveProgress(f, -1)
         console.log(f.convertData.bufferedError)
       }
       else {
@@ -47,13 +53,14 @@ function getProgress() {
           result[1] = result[1].trim().split(' ')
           result[1] = result[1][0]
           percentage = Math.round(result[0] / result[1] * 100)
-          setProgress(f, percentage)
+          saveProgress(f, percentage)
         }
       }
     }
     if (!allFinished) {
       setTimeout(getProgress, 300)
     }
+	if (callback) callback(newFiles);
   }).fail(function(error) {
     console.log('Failed to get progress ' + error)
     setTimeout(getProgress, 300)
@@ -81,12 +88,11 @@ function convertFiles() {
       //
       // }
       if (responseData === 'Success') {
-        console.log('wew')
-        setTimeout(getProgress, 300)
+		setTimeout(getProgress, 300)
       }
       else {
-        alert('Conversion failed. Please restart the application and try again.')
-        console.log('Conversion failed. Please restart the application and try again')
+        alertAndQuit('Conversion failed. Please restart Rayk and try again.')
+        console.log('Conversion failed. Please restart Rayk and try again')
       }
     }
   }
@@ -98,26 +104,94 @@ function convertFiles() {
 
 }
 
-function sendFiles() {
+function sendFiles(count) {
+  if (typeof(count) !== "number" || count === undefined) {
+	  count = 1
+  }
   xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
   xmlhttp.open("GET", "http://localhost:8000/send_files", true);
 
   xmlhttp.onreadystatechange = function() {
-	getProgress()
-	for (i in newFiles) {
-      f = newFiles[i]
-      elementId = f.id + "-send-status"
-      if (f.sentToKindle) {
-        innerHTML = "Sent to Kindle!"
-      }
-      else {
-        innerHTML = "Failed to send to Kindle"
-      }
-      document.getElementById(elementId).innerHTML = innerHTML
-    }
+	if (this.readyState == 4 ) {
+		getProgress(function(newFiles) {
+			if (newFiles.length > 1) {
+				alertAndQuit("An error occured. Please restart Rayk and try again")
+				return
+			}
+			for (i in newFiles) {
+			  f = newFiles[i]
+			  
+			  // Send only converted files
+			  if (f.convertData.status !== 'done') {
+				  continue
+			  }
+			  elementId = f.id + "-send-status"
+			  if (f.sentToKindle) {
+				innerHTML = "Sent to Kindle!"
+			  }
+			  else {
+				if (count < 5) {
+					setTimeout(sendFiles, 300, count + 1)
+					return
+				}
+				alert("Failed to send " + f.name + " to Kindle. Please retry")
+				cleanUp()
+				return
+			  }
+			  document.getElementById(elementId).innerHTML = innerHTML
+			  setTimeout(cleanUp, 300)
+			}
+		})
+	}
   }
 
   xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xmlhttp.send()
   
+}
+
+function cleanUp(oldFiles) {
+	// Cleans up the already processed/failed files, preparing for more file conversion.
+	
+	if (oldFiles === null || oldFiles === undefined) {
+		// Call getProgress once to fetch file list before cleanup to see which ones have been
+		// sent to Kindle
+		getProgress(cleanUp)
+		return
+	}
+	else if (oldFiles.length === 0) return
+	else if (oldFiles.length !== 1) alertAndQuit("An error occured. Please restart Rayk and try again")
+	
+	// Clean up
+	xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
+	xmlhttp.open("GET", "http://localhost:8000/cleanup", true);
+	xmlhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+			if (this.status !== 200) {
+				alertAndQuit("An error occured. Please restart Rayk and try again")
+			}
+			getProgress(function (newFiles){
+				if (newFiles.length != 0) {
+					alertAndQuit("An error occured. Please restart Rayk and try again")
+					return
+				}
+				oldParent = document.getElementById("list")
+				oldFileElement = oldFiles[0]
+				listElementId = "li-0"
+				listElement = document.getElementById(listElementId)
+				if (oldFileElement.sentToKindle !== true) {
+					listElement.parentNode.removeChild(listElement)
+				}
+				else if (listElement.parentNode === oldParent) {
+					newParent = document.getElementById("completed-file-list")
+					newParent.appendChild(listElement)
+				}
+				if (oldParent.childNodes.length > 0) {
+					alertAndQuit("An error occured. Please restart Rayk and try again")
+				}
+				allFiles = []
+			})
+		}
+	}
+	xmlhttp.send();
 }

@@ -10,6 +10,16 @@ app = server()
 newFiles = []
 spawnedProcesses = {}
 
+function createTemp() {
+  // Creates the temp directory
+  exec("mkdir -p " + TempDir)
+}
+
+function deleteTemp() {
+  // Deletes the temp directory
+  exec("rm -rf " + TempDir)
+}
+
 app.post('/cancel', function($) {
   data = JSON.parse($.body)
 
@@ -110,12 +120,28 @@ app.get('/send_files', function($) {
   $.end("Success")
 })
 
+app.get("/cleanup", function($) {
+	// Refreshes state for new file conversion
+	deleteTemp()
+	createTemp()
+	for (i in newFiles) {
+		proc = spawnedProcess[newFiles[i].path]
+		if (proc) proc.kill()
+	}
+	newFiles = []
+	spawnedProcess = []
+	$.end("Success")
+})
+
 // Set exit function
 process.on('message', (msg) => {
   if (msg == 'exit') {
     process.exit()
   }
 })
+
+process.on('createTemp', createTemp)
+process.on('deleteTemp', deleteTemp)
 
 function startServer() {
   app.listen('http://localhost:8000')

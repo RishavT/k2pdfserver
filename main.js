@@ -13,25 +13,20 @@ const k2pdfopt = require(path.join(__dirname, 'k2pdfopt.js'))
 const forked = fork(path.join(__dirname, 'server.js'))
 const exec = require('child_process').exec
 const TempDir = '/tmp/rayk/'
+const openWithFiles = []
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
-
-function createTemp() {
-  // Creates the temp directory
-  exec("mkdir -p " + TempDir)
-}
-function deleteTemp() {
-  // Deletes the temp directory
-  exec("rm -rf " + TempDir)
-}
 
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 600,
     height: 600,
+	webPreferences: {
+		nodeIntegration: true
+	}
   })
 
   // and load the index.html of the app.
@@ -42,8 +37,8 @@ function createWindow() {
   }))
 
   // Refresh temp directory
-  deleteTemp()
-  createTemp()
+  forked.send("deleteTemp")
+  forked.send("createTemp")
 
   k2pdfopt.downloadIfRequired(success => {
     if (success) {
@@ -71,9 +66,11 @@ function createWindow() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
-    deleteTemp()
+    forked.send("deleteTemp")
     forked.send('exit')
   })
+
+  mainWindow.openWithFiles = openWithFiles
 }
 
 // This method will be called when Electron has finished
@@ -99,5 +96,7 @@ app.on('activate', function() {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+app.on('open-file', (event, path) => {
+  openWithFiles.push(path);
+  if (mainWindow) mainWindow.openWithFiles = openWithFiles;
+});
