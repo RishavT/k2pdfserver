@@ -1,15 +1,44 @@
 {
-  "name": "Rayk",
-  "description": "A Simple OS X Application to make your PDFs Kindle friendly",
-  "author": "Rishav Thakker (thakker.rishav@gmail.com)",
-  "main": "main.js",
-  "version": "0.1.0",
-  "license": "gplv2",
-  "dependencies": {
-    "diet": "^0.16.0",
-    "download": "^6.2.5"
-  },
-  "devDependencies": {
-    "electron": "^7.1.6"
-  }
+	"name": "Rayk",
+	"description": "A Simple OS X Application to make your PDFs Kindle friendly",
+	"author": "Rishav Thakker (thakker.rishav@gmail.com)",
+	"main": "main.js",
+	"version": "0.1.0",
+	"license": "gplv2",
+	"dependencies": {
+		"diet": "^0.16.0",
+		"download": "^6.2.5"
+	},
+	"devDependencies": {
+		"electron": "^7.1.6",
+		"electron-builder": "^22.2.0"
+	},
+    "scripts": {
+        "build": "electron-builder",
+        "pack": "electron-builder --dir"
+    },
+	"build": {
+		"productName": "Rayk",
+		"appId": "com.rishavthakker.rayk",
+		"directories": {
+			"output": "dist"
+		},
+		"files": [
+			"./**/*"
+		],
+		"mac": {
+			"icon": "./icons/icon.icns",
+			"category": "public.app-category.photography",
+			"fileAssociations": [
+				{
+					"ext": [
+						"pdf",
+						"PDF"
+					],
+					"description": "Image files",
+					"role": "Viewer"
+				}
+			]
+		}
+	}
 }
