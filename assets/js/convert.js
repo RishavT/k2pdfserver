@@ -190,6 +190,9 @@ function cleanUp(oldFiles) {
 					alertAndQuit("An error occured. Please restart Rayk and try again")
 				}
 				allFiles = []
+				if (openedWith) {
+					alertAndQuit("Done!")
+				}
 			})
 		}
 	}

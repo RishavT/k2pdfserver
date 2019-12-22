@@ -1,4 +1,5 @@
-const remote = require("electron")
+const electron2 = require("electron")
+openedWith = false
 
 var allFiles = [];
 output = [];
@@ -136,7 +137,34 @@ function removeFile(obj) {
   }));
 }
 
-// Setup the dnd listeners.
-var body = document.getElementsByTagName("body")[0];
-body.addEventListener('dragover', handleDragOver, false);
-body.addEventListener('drop', handleFileSelect, false);
+function addFilesFromOpenWith() {
+	// Adds files that Rayk has been opened with if any
+	openWithFiles = electron2.remote.getCurrentWindow().openWithFiles
+	if (openWithFiles && openWithFiles.length > 0) {
+		openedWith = true
+		if (openWithFiles.length > 1) {
+			alertAndQuit("Please select one file at a time")
+		}
+
+		filePath = openWithFiles[0]
+		_ = filePath.split("/")
+		fileName = _[_.length - 1]
+		if (!fileName.endsWith(".pdf")) {
+			alertAndQuit("Rayk only supports PDF files as of now")
+		}
+
+		fileObj = {
+			path: filePath,
+			name: fileName
+		}
+		handleFileSelect(null, [fileObj])
+	}
+}
+
+window.onload = function() {
+	// Setup the dnd listeners.
+	var body = document.getElementsByTagName("body")[0];
+	body.addEventListener('dragover', handleDragOver, false);
+	body.addEventListener('drop', handleFileSelect, false);
+	addFilesFromOpenWith()
+}
